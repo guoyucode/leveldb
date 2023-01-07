@@ -17,7 +17,7 @@ pub trait KV<K: Key> {
     /// get a value from the database.
     ///
     /// The passed key will be compared using the comparator.
-    fn get<'a, BK: Borrow<K>>(&self, options: ReadOptions<'a, K>, key: BK) -> Result<Option<Vec<u8>>, Error>;
+    fn get<'a>(&self, options: ReadOptions<'a, K>, key: K) -> Result<Option<Vec<u8>>, Error>;
 
     /// get a value from the database.
     ///
@@ -25,7 +25,7 @@ pub trait KV<K: Key> {
     ///
     /// This version returns bytes allocated by leveldb without converting to `Vec<u8>`, which may
     /// lead to better performance.
-    fn get_bytes<'a, BK: Borrow<K>>(&self, options: ReadOptions<'a, K>, key: BK) -> Result<Option<Bytes>, Error>;
+    fn get_bytes<'a>(&self, options: ReadOptions<'a, K>, key: K) -> Result<Option<Bytes>, Error>;
     /// put a binary value into the database.
     ///
     /// If the key is already present in the database, it will be overwritten.
@@ -34,14 +34,14 @@ pub trait KV<K: Key> {
     ///
     /// The database will be synced to disc if `options.sync == true`. This is
     /// NOT the default.
-    fn put<BK: Borrow<K>>(&self, options: WriteOptions, key: BK, value: &[u8]) -> Result<(), Error>;
+    fn put(&self, options: WriteOptions, key: K, value: &[u8]) -> Result<(), Error>;
     /// delete a value from the database.
     ///
     /// The passed key will be compared using the comparator.
     ///
     /// The database will be synced to disc if `options.sync == true`. This is
     /// NOT the default.
-    fn delete<BK: Borrow<K>>(&self, options: WriteOptions, key: BK) -> Result<(), Error>;
+    fn delete(&self, options: WriteOptions, key: K) -> Result<(), Error>;
 }
 
 impl<K: Key> KV<K> for Database<K> {
@@ -53,7 +53,7 @@ impl<K: Key> KV<K> for Database<K> {
     ///
     /// The database will be synced to disc if `options.sync == true`. This is
     /// NOT the default.
-    fn put<BK: Borrow<K>>(&self, options: WriteOptions, key: BK, value: &[u8]) -> Result<(), Error> {
+    fn put(&self, options: WriteOptions, key: K, value: &[u8]) -> Result<(), Error> {
         unsafe {
             key.borrow().as_slice(|k| {
                 let mut error = ptr::null_mut();
@@ -82,7 +82,7 @@ impl<K: Key> KV<K> for Database<K> {
     ///
     /// The database will be synced to disc if `options.sync == true`. This is
     /// NOT the default.
-    fn delete<BK: Borrow<K>>(&self, options: WriteOptions, key: BK) -> Result<(), Error> {
+    fn delete(&self, options: WriteOptions, key: K) -> Result<(), Error> {
         unsafe {
             key.borrow().as_slice(|k| {
                 let mut error = ptr::null_mut();
@@ -102,7 +102,7 @@ impl<K: Key> KV<K> for Database<K> {
         }
     }
 
-    fn get_bytes<'a, BK: Borrow<K>>(&self, options: ReadOptions<'a, K>, key: BK) -> Result<Option<Bytes>, Error> {
+    fn get_bytes<'a>(&self, options: ReadOptions<'a, K>, key: K) -> Result<Option<Bytes>, Error> {
         unsafe {
             key.borrow().as_slice(|k| {
                 let mut error = ptr::null_mut();
@@ -125,7 +125,7 @@ impl<K: Key> KV<K> for Database<K> {
         }
     }
 
-    fn get<'a, BK: Borrow<K>>(&self, options: ReadOptions<'a, K>, key: BK) -> Result<Option<Vec<u8>>, Error> {
+    fn get<'a>(&self, options: ReadOptions<'a, K>, key: K) -> Result<Option<Vec<u8>>, Error> {
         self.get_bytes(options, key).map(|val| val.map(Into::into))
     }
 }

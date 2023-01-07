@@ -1,7 +1,8 @@
 //! The main database module, allowing to interface with leveldb on
 //! a key-value basis.
-extern crate db_key as key;
+// extern crate db_key as key;
 
+mod key;
 use leveldb_sys::*;
 
 use self::options::{Options, c_options};

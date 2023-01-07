@@ -23,9 +23,7 @@ default = ["leveldb-sys/snappy"]
 name = "leveldb"
 
 [dependencies]
-
-db-key = "0.0.5"
-libc = "0.2.4"
+libc = "0.2"
 
 [dependencies.leveldb-sys]
 version = "2.0.0"
