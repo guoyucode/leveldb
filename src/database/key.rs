@@ -35,3 +35,13 @@ impl Key for String {
     }
 }
 
+impl Key for Vec<u8> {
+    fn from_u8(key: &[u8]) -> Self {
+        key.to_vec()
+    }
+
+    fn as_slice<T, F: Fn(&[u8]) -> T>(&self, f: F) -> T {    
+        f(self.as_slice())
+    }
+}
+
